@@ -18,7 +18,7 @@ st.set_page_config(layout="wide")
 st.title("📊 Improved Payment On-Time & Date Prediction Dashboard")
 
 # Load CSV directly from file system
-csv_file_path = "3000_Transaction_Records.csv"
+csv_file_path = "3000_Varied_Product_Transactions.csv"
 df = pd.read_csv(csv_file_path, parse_dates=["date_of_purchase", "payment_due"])
 
 def simulate_payment_date(row): 
