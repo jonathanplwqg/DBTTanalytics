@@ -173,7 +173,7 @@ if not df_filtered.empty:
         title_parts.append("Products: " + ", ".join(selected_products))
 
     ax_detail.set_title(" | ".join(title_parts), fontsize=13)
-    ax_detail.set_ylabel("Days Until Payment")
+    ax_detail.set_ylabel("Number of Days")
     ax_detail.set_xlabel("Transaction Date")
     ax_detail.legend(title="Payment Status")
     plt.xticks(rotation=45)
