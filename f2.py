@@ -271,7 +271,7 @@ fig = px.scatter(
     color="profit_margin",
     hover_name="product_name",
     text="product_name",
-    log_x=True,  # Use logarithmic scale for market share
+    log_x=False,  # Using linear scale
     color_continuous_scale=px.colors.sequential.Viridis,
     title="Product Portfolio Matrix (BCG)",
     labels={
@@ -294,18 +294,77 @@ fig.add_shape(type="line", x0=min(product_metrics["market_share"]), y0=median_gr
               x1=max(product_metrics["market_share"]), y1=median_growth, 
               line=dict(color="Gray", width=1, dash="dash"))
 
-# Add quadrant annotations
-fig.add_annotation(x=product_metrics["market_share"].max()*0.9, y=product_metrics["growth_rate"].max()*0.9,
-                   text="STARS", showarrow=False, font=dict(size=14, color="black", family="Arial Black"))
+# Calculate the max and min points for positioning the labels
+x_max = product_metrics["market_share"].max() * 1.1
+x_min = 0  # We're starting from 0 for better visibility
+y_max = product_metrics["growth_rate"].max() * 1.1
+y_min = product_metrics["growth_rate"].min() * 1.1
+stars_color = "#2E86C1"       # Blue
+question_marks_color = "#8E44AD"  # Purple
+cash_cows_color = "#27AE60"   # Green
+dogs_color = "#E74C3C"  
+# Add quadrant labels with adjusted positions
+# Top-left quadrant (Question Marks)
+fig.add_trace(go.Scatter(
+    x=[x_min + (median_share - x_min) / 2],
+    y=[y_max - (y_max - median_growth) * 0.2],  # Moved down slightly
+    mode="text",
+    text=["QUESTION MARKS"],
+    hoverinfo="text",
+    hovertext=["High growth, low market share - Evaluate for investment"],
+    textfont=dict(color="black", size=12),
+    showlegend=False
+))
 
-fig.add_annotation(x=product_metrics["market_share"].min()*1.1, y=product_metrics["growth_rate"].max()*0.9,
-                   text="QUESTION MARKS", showarrow=False, font=dict(size=14, color="black", family="Arial Black"))
+# Top-right quadrant (Stars) - REPOSITIONED to avoid overlap
+fig.add_trace(go.Scatter(
+    x=[median_share + (x_max - median_share) * 0.7],  # Moved right
+    y=[y_max - (y_max - median_growth) * 0.3],  # Moved down
+    mode="text",
+    text=["STARS"],
+    hoverinfo="text",
+    hovertext=["High growth, high market share - Invest for growth"],
+    textfont=dict(color="black", size=12),
+    showlegend=False
+))
 
-fig.add_annotation(x=product_metrics["market_share"].max()*0.9, y=product_metrics["growth_rate"].min()*1.1,
-                   text="CASH COWS", showarrow=False, font=dict(size=14, color="black", family="Arial Black"))
+# Bottom-left quadrant (Dogs)
+fig.add_trace(go.Scatter(
+    x=[x_min + (median_share - x_min) / 2],
+    y=[y_min + (median_growth - y_min) * 0.4],  # Moved up slightly
+    mode="text",
+    text=["DOGS"],
+    hoverinfo="text",
+    hovertext=["Low growth, low market share - Consider divesting"],
+    textfont=dict(color="black", size=12),
+    showlegend=False
+))
 
-fig.add_annotation(x=product_metrics["market_share"].min()*1.1, y=product_metrics["growth_rate"].min()*1.1,
-                   text="DOGS", showarrow=False, font=dict(size=14, color="black", family="Arial Black"))
+# Bottom-right quadrant (Cash Cows)
+fig.add_trace(go.Scatter(
+    x=[median_share + (x_max - median_share) / 2],
+    y=[y_min + (median_growth - y_min) * 0.2],  # Moved up slightly
+    mode="text",
+    text=["CASH COWS"],
+    hoverinfo="text",
+    hovertext=["Low growth, high market share - Harvest for cash"],
+    textfont=dict(color="black", size=12),
+    showlegend=False
+))
+
+# Set the x-axis range explicitly
+fig.update_xaxes(range=[x_min, x_max])
+fig.update_yaxes(range=[y_min, y_max])
+
+# Configure hover mode to show more user-friendly information
+fig.update_layout(
+    hovermode="closest",
+    hoverlabel=dict(
+        bgcolor="white",
+        font_size=12,
+        font_family="Arial"
+    )
+)
 
 fig.update_traces(textposition='top center')
 fig.update_layout(showlegend=False)
